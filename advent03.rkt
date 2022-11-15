@@ -33,3 +33,21 @@
 
 (measure 5 test-data)
 (measure 12 raw-data)
+
+(define (most-common-bit pos data)
+  (for/fold ([zeros 0]
+             [ones 0]
+             #:result (if (> zeros ones)
+                          #\0
+                          #\1))
+            ([s (string-split data)])
+    (if (equal? #\1 (string-ref s pos))
+        (values zeros (add1 ones))
+        (values (add1 zeros) ones))))
+
+(define (extract mcb pos data)
+  (for/list ([s (in-list (string-split data))]
+        #:when (equal? (string-ref s pos) mcb))
+    s))
+    
+    
