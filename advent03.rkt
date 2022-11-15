@@ -40,14 +40,49 @@
              #:result (if (> zeros ones)
                           #\0
                           #\1))
-            ([s (string-split data)])
+            ([s data])
     (if (equal? #\1 (string-ref s pos))
         (values zeros (add1 ones))
         (values (add1 zeros) ones))))
 
+(define (least-common-bit pos data)
+  (let ([mcb (most-common-bit pos data)])
+    (if (equal? mcb #\1)
+        #\0
+        #\1)))
+
 (define (extract mcb pos data)
-  (for/list ([s (in-list (string-split data))]
-        #:when (equal? (string-ref s pos) mcb))
+  (for/list ([s (in-list data)]
+             #:when (equal? (string-ref s pos) mcb))
     s))
-    
-    
+
+(define (ox-gen-rating width raw-data)
+  (for/fold ([residue (string-split raw-data)]
+             #:result (car residue))
+            ([i (range 0 width)])
+    (if (equal? 1 (length residue))
+        residue
+        (let ([mcb (most-common-bit i residue)])
+          (let ([residue (extract mcb i residue)])
+            residue)))))
+
+(define (c02-scrubber-rating width raw-data)
+  (for/fold ([residue (string-split raw-data)]
+             #:result (car residue))
+            ([i (range 0 width)])
+    (if (equal? 1 (length residue))
+        residue
+        (let ([lcb (least-common-bit i residue)])
+          (let ([residue (extract lcb i residue)])
+            residue)))))
+
+(define (ratings width data)
+  (let ([ox-gen (string->number (ox-gen-rating width data) 2)]
+        [c02-scrubber (string->number (c02-scrubber-rating width data) 2)])
+    (printf "ox gen rating = ~s; c02 scrubber rating = ~s; product = ~s\n"
+            ox-gen c02-scrubber (* ox-gen c02-scrubber))))
+
+(ratings 5 test-data)
+(ratings 12 raw-data)
+
+        
