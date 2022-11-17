@@ -21,12 +21,9 @@
 (define (mark-board board matches number)
   (for/or ([i (in-naturals)]
            [n (in-vector board)])
-    (printf "i: ~s; n: ~s\n" i n)
     (if (equal? n number)
         (begin
-          (printf "number ~s at ~s ~s\n" number i (vector-ref matches i))
           (vector-set! matches i #t)
-          (printf "vector-set\n")
           (if (or (marked-row matches (row i)) (marked-col matches (col i)))
               (compute-score board matches number)
               #f))
@@ -47,11 +44,8 @@
     (vector-ref matches (board-index r c))))
 
 (define (compute-score board matches number)
-  (printf "compute-score\n")
   (let ([s (for*/sum ([r (in-range 5)]
                      [c (in-range 5)]
                      #:when (not (vector-ref matches (board-index r c))))
-             (printf "board-index: ~s; r: ~s; c: ~s, vr: ~s\n" (board-index r c) r c (vector-ref board (board-index r c)))
              (vector-ref board (board-index r c)))])
-    (printf "number ~s; s: ~s\n" number s)
     (* number s)))

@@ -1,6 +1,6 @@
 #lang racket
 
-(provide test-numbers test-board-data)
+(provide test-numbers test-board-data numbers board-data)
 
 (define (parse-boards lines)
   (for/fold ([acc '()]
