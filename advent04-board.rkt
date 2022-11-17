@@ -1,6 +1,8 @@
 #lang racket
 
-(provide make-board make-matches mark-board)
+(struct cell (val marked))
+
+(provide make-board mark-board)
 
 (define (board-index r c)
   (+ c (* r 5)))
@@ -11,21 +13,18 @@
     (for ([r (in-naturals)]
           [row (in-list data)] )
       (for ([c (in-naturals)]
-            [col (in-list row)])
-        (vector-set! board (board-index r c) col)))          
+            [val (in-list row)])
+        (vector-set! board (board-index r c) (cell val #f))))          
     board))
 
-(define (make-matches)
-  (make-vector 25 #f))
-
-(define (mark-board board matches number)
+(define (mark-board board number)
   (for/or ([i (in-naturals)]
-           [n (in-vector board)])
-    (if (equal? n number)
+           [b (in-vector board)])
+    (if (equal? (cell-val b) number)
         (begin
-          (vector-set! matches i #t)
-          (if (or (marked-row matches (row i)) (marked-col matches (col i)))
-              (compute-score board matches number)
+          (vector-set! board i (cell (cell-val b) #t))
+          (if (or (marked-row board (row i)) (marked-col board (col i)))
+              (compute-score board number)
               #f))
         #f)))
 
@@ -35,17 +34,27 @@
 (define (col i)
   (remainder i 5)) 
 
-(define (marked-row matches r)
+(define (marked-row board r)
   (for/and ([c (in-range 5)])
-    (vector-ref matches (board-index r c))))
+    (let ([b (vector-ref board (board-index r c))])
+      (if b
+          (cell-marked b)
+          #f))))
 
-(define (marked-col matches c)
+(define (marked-col board c)
   (for/and ([r (in-range 5)])
-    (vector-ref matches (board-index r c))))
+    (let ([b (vector-ref board (board-index r c))])
+      (if b
+          (cell-marked b)
+          #f))))
 
-(define (compute-score board matches number)
+(define (compute-score board number)
   (let ([s (for*/sum ([r (in-range 5)]
-                     [c (in-range 5)]
-                     #:when (not (vector-ref matches (board-index r c))))
-             (vector-ref board (board-index r c)))])
+                      [c (in-range 5)])
+             (let ([b (vector-ref board (board-index r c))])
+               (if b
+                   (if (not (cell-marked b))
+                       (cell-val b)
+                       0)
+                   0)))])
     (* number s)))
