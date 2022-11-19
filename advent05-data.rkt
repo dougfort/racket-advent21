@@ -1,6 +1,6 @@
 #lang racket
 
-(provide restricted-test-data restricted-data points-in-line)
+(provide restricted-test-data restricted-data test-data data points-in-line)
 
 (struct point (x y)
   #:transparent)
@@ -23,24 +23,33 @@
   (equal? (point-y (line-p1 l)) (point-y (line-p2 l))))
 
 (define (horizontal-range l)
-  (let ([x1 (point-x (line-p1 l))]
-        [x2 (point-x (line-p2 l))])
-    (sequence->list (if (< x1 x2)
-                        (in-inclusive-range x1 x2)
-                        (in-inclusive-range x2 x1)))))        
+  (let* ([x1 (point-x (line-p1 l))]
+        [x2 (point-x (line-p2 l))]
+        [x-inc (if (< x1 x2) 1 -1)])
+    (sequence->list (in-inclusive-range x1 x2 x-inc))))
 
 (define (vertical-range l)
-  (let ([y1 (point-y (line-p1 l))]
-        [y2 (point-y (line-p2 l))])
-    (sequence->list (if (< y1 y2)
-                        (in-inclusive-range y1 y2)
-                        (in-inclusive-range y2 y1)))))        
-
+  (let* ([y1 (point-y (line-p1 l))]
+        [y2 (point-y (line-p2 l))]
+        [y-inc (if (< y1 y2) 1 -1)])
+    (sequence->list (in-inclusive-range y1 y2 y-inc))))
+      
+(define (diagonal-range l)
+  (let* ([x1 (point-x (line-p1 l))]
+        [x2 (point-x (line-p2 l))]
+        [x-inc (if (< x1 x2) 1 -1)]
+        [y1 (point-y (line-p1 l))]
+        [y2 (point-y (line-p2 l))]
+        [y-inc (if (< y1 y2) 1 -1)])
+    (for/list ([x (in-inclusive-range x1 x2 x-inc)]
+               [y (in-inclusive-range y1 y2 y-inc)])
+      (cons x y))))
+      
 (define (points-in-line l)
   (cond
     [(horizontal? l) (map (λ (x) (point x (point-y (line-p1 l)))) (horizontal-range l))]
     [(vertical? l) (map (λ (y) (point (point-x (line-p1 l)) y)) (vertical-range l))]
-    [else '()]))
+    [else (map (λ (p) (point (car p) (cdr p))) (diagonal-range l))]))
     
 (define raw-test-data
   "
