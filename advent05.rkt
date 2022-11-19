@@ -12,3 +12,5 @@
       
 (count-overlap restricted-test-data)
 (count-overlap restricted-data)
+(count-overlap test-data)
+(count-overlap data)
