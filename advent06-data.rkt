@@ -1,6 +1,6 @@
 #lang racket
 
-(provide test-data data)
+(provide test-data data parse)
 
 (define (parse s)
   (map string->number (string-split (string-trim s) ",")))
