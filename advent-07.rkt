@@ -7,6 +7,10 @@
         (- p2 p1)
         (- p1 p2)))
 
+(define (crab-distance p1 p2)
+  (for/sum ([i (in-inclusive-range 1 (simple-distance p1 p2))])
+    i))
+
 (define (sum-of-distance-from x ps df)
   (for/sum ([p (in-list ps)])
     (df x p)))
@@ -42,3 +46,9 @@
 
 (simple-min-distance test-data)
 (simple-min-distance data)
+
+(define (crab-min-distance ps)
+  (min-distance crab-distance ps))
+
+(crab-min-distance test-data)
+(crab-min-distance data)
