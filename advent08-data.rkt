@@ -2,11 +2,6 @@
 
 (provide test-data data)
 
-(define (parse0 l)
-  (map (λ (p) (string-split p))
-       (map (λ (s) (string-split s " | "))
-            (string-split (string-trim l) "\n"))))
-
 (define (parse l)
   (for/list ([line (string-split (string-trim l) "\n")])
     (map string-split (string-split line " | "))))
