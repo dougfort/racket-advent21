@@ -1,8 +1,14 @@
 #lang racket
 
-(provide heightmap-l heightmap-w heightmap-ref heightmap-neighbors test-data-heightmap data-heightmap)
+(provide point value-at-point value-at-point-val value-at-point-p heightmap-l heightmap-w heightmap-ref heightmap-neighbors test-data-heightmap data-heightmap)
 
 (struct heightmap (l w v)
+  #:transparent)
+
+(struct point (row col)
+  #:transparent)
+
+(struct value-at-point (p val)
   #:transparent)
 
 (define (parse l)
@@ -23,20 +29,22 @@
          [v (list->vector (flatten nums))])
     (heightmap l w v)))
 
-(define (heightmap-ref hm row col)
+(define (heightmap-ref hm p)
   (cond
-    [(< row 0) #f]
-    [(>= row (heightmap-l hm)) #f]
-    [(< col 0) #f]
-    [(>= col (heightmap-w hm)) #f]
-    [else (vector-ref (heightmap-v hm) (+ (* (heightmap-w hm) row) col))]))
+    [(< (point-row p) 0) #f]
+    [(>= (point-row p) (heightmap-l hm)) #f]
+    [(< (point-col p) 0) #f]
+    [(>= (point-col p) (heightmap-w hm)) #f]
+    [else (vector-ref (heightmap-v hm) (+ (* (heightmap-w hm) (point-row p)) (point-col p)))]))
 
-(define (heightmap-neighbors hm row col)
-  (let ([up (heightmap-ref hm (- row 1) col)]
-        [down (heightmap-ref hm (+ row 1) col)]
-        [left (heightmap-ref hm row (- col 1))]
-        [right (heightmap-ref hm row (+ col 1))])
-    (filter (λ (x) x) (list up down left right))))
+(define (heightmap-neighbors hm p)
+  (let ([up (point (- (point-row p) 1) (point-col p))]
+        [down (point (+ (point-row p) 1) (point-col p))]
+        [left (point (point-row p) (- (point-col p) 1))]
+        [right (point (point-row p) (+ (point-col p) 1))])
+    (filter (λ (x) (value-at-point-val x))
+              (map (λ (p) (value-at-point p (heightmap-ref hm p)))
+                   (list up down left right)))))
 
 (define raw-test-data
   "
