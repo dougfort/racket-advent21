@@ -29,19 +29,33 @@
 (sum-risk-levels test-data-heightmap)
 (sum-risk-levels data-heightmap)
 
+(define (val-with-neighbors hm lp)
+  (for/list ([np (heightmap-neighbors hm (value-at-point-p lp))])
+    (cons (value-at-point-val lp) np)))
+
 (define (find-basin hm lp)
   (let ([seen (make-hash)])
-    (let loop ([prev-p lp]
-               [stack (heightmap-neighbors hm (value-at-point-p lp))]
+    (let loop ([stack (val-with-neighbors hm lp)]
                [acc (list lp)])
       (cond
         [(empty? stack) acc]
         [else
-         (let ([p (car stack)]
+         (let ([val (caar stack)]
+               [p (cdar stack)]
                [r (cdr stack)])
            (cond
-             [(= (value-at-point-val p) 9) (loop prev-p r acc)]
-             [(<= (value-at-point-val p) (value-at-point-val prev-p)) (loop prev-p r acc)]
+             [(hash-has-key? seen (value-at-point-p p)) (loop r acc)]
+             [(= (value-at-point-val p) 9) (loop r acc)]
+             [(<= (value-at-point-val p) val) (loop r acc)]
              [else
-               (loop p (append r (heightmap-neighbors hm (value-at-point-p p))) (cons p acc))]))]))))
-                
+              (hash-set! seen (value-at-point-p p) #t)
+              (loop (append r (val-with-neighbors hm p)) (cons p acc))]))]))))
+
+(define (largest-basins-product hm)
+  (let ([bs (for/list ([lp (low-points hm)])
+              (length (find-basin hm lp)))])
+    (for/product ([i (take (reverse (sort bs <)) 3)])
+      i)))
+
+(largest-basins-product test-data-heightmap)
+(largest-basins-product data-heightmap)
