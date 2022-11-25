@@ -79,11 +79,14 @@
         (for ([p (in-list (hash-keys flashed))])
           (set-to-zero! v-final p))
 
-        v-final))))
+        (values (length (hash-keys flashed)) v-final)))))
 
 (define (steps init-v n)
-  (let loop ([v init-v]
+  (let loop ([count 0]
+             [v init-v]
              [i 0])
     (cond
-      [(= n i) v]
-      [else (loop (step v) (add1 i))])))
+      [(= n i) (values count v)]
+      [else
+       (let-values ([(c v) (step v)])        
+       (loop (+ count c) v (add1 i)))])))
