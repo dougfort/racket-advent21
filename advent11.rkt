@@ -89,4 +89,14 @@
       [(= n i) (values count v)]
       [else
        (let-values ([(c v) (step v)])        
-       (loop (+ count c) v (add1 i)))])))
+         (loop (+ count c) v (add1 i)))])))
+
+(define (steps-to-max-flash init-v)
+  (define max-flash (* width height)) 
+  (let loop ([count 0]
+             [v init-v]
+             [i 0])
+    (let-values ([(c v) (step v)])
+      (if (= c max-flash)
+          (add1 i)
+          (loop (+ count c) v (add1 i))))))
