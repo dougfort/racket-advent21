@@ -67,3 +67,14 @@
                  [val (or (vector-ref (dots-v dts) pos-i) (vector-ref (dots-v dts) pos-j))])
             (vector-set! vec pos-out val)))))
     (dots w h vec)))
+
+(define (fold-all flds dts)
+  (for/fold ([dts dts])
+            ([fld flds])
+    (cond
+      [(equal? "y" (car fld)) (fold-dots-up dts (cdr fld))]
+      [(equal? "x" (car fld)) (fold-dots-left dts (cdr fld))]
+      [else (error (format "unknown fold '~s'" fld))])))
+
+(show-dots (fold-all test-data-folds (load-dots test-data-dots)))
+(show-dots (fold-all data-folds (load-dots data-dots)))
